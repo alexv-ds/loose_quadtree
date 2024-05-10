@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(LooseQuadtree
+project(loose_quadtree
   VERSION 2.0.0
   DESCRIPTION "Loose Quadtree (Region Tree) simple implementation"
   HOMEPAGE_URL "https://github.com/alexv-ds/loose_quadtree"
@@ -12,17 +12,17 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 set(QUADTREE_ENABLE_WALL ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Enable all warnings")
-set(QUADTREE_ENABLE_WERROR OFF CACHE BOOL "Interpret warnings as errors")
+set(QUADTREE_ENABLE_WERROR ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Interpret warnings as errors")
 set(QUADTREE_BUILD_TESTING ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Build tests")
 
 add_library(loose_quadtree INTERFACE
-  include/loose_quadtree/loose_quadtree.hpp
-  impl/LooseQuadtree-impl.h
+  src/include/loose_quadtree/loose_quadtree.hpp
+  src/loose_quadtree_impl.hpp
 )
 add_library(loose_quadtree::loose_quadtree ALIAS loose_quadtree)
 
 target_include_directories(loose_quadtree INTERFACE
-  include
+  src/include
 )
 
 set_target_properties(loose_quadtree PROPERTIES
@@ -63,28 +63,3 @@ if (QUADTREE_BUILD_TESTING)
   include(Catch)
   catch_discover_tests(tests_loose_quadtree)
 endif ()
-
-
-
-#enable_testing()
-#
-#add_compile_options(-std=c++11 -Wall -pedantic)
-#
-#if (MSVC)
-#  #add_compile_options(/WX)
-#else ()
-#  add_compile_options(-Wextra -Wconversion
-#    #-Werror
-#  )
-#endif ()
-##add_compile_options($<$<CONFIG:Debug>:-fsanitize=address>)
-##add_compile_options($<$<CONFIG:Debug>:-fsanitize=leak>)
-##add_compile_options($<$<CONFIG:Debug>:-fsanitize=undefined>)
-##add_compile_options($<$<CONFIG:Release>:-pg>)
-#include_directories(include)
-#add_executable(LooseQuadtreeTest test/LooseQuadtreeTest.cpp)
-##set_target_properties(LooseQuadtreeTest PROPERTIES LINK_FLAGS_DEBUG "-fsanitize=address")
-##set_target_properties(LooseQuadtreeTest PROPERTIES LINK_FLAGS_DEBUG "-fsanitize=leak -fsanitize=undefined")
-##set_target_properties(LooseQuadtreeTest PROPERTIES LINK_FLAGS_RELEASE "-pg")
-#add_test(LooseQuadtreeTest LooseQuadtreeTest)
-#

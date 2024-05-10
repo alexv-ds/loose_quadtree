@@ -113,6 +113,6 @@ private:
 
 } //loose_quadtree
 
-#include "../../impl/LooseQuadtree-impl.h"
+#include "../../loose_quadtree_impl.hpp"
 
 #endif //LOOSEQUADTREE_LOOSE_QUADTREE_HPP

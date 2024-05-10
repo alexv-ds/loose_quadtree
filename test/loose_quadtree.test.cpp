@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <loose_quadtree/loose_quadtree.hpp>
+#include "loose_quadtree/loose_quadtree.hpp"
 
 #define TYPES_FOR_TESTING \
   float, double, long double, int, long, short, \
