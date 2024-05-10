@@ -1,2 +1,9 @@
-build*
+#build dirs
+cmake-build*/
+build/
 
+#Clion conf
+.idea/
+
+#vscode
+.vscode/
