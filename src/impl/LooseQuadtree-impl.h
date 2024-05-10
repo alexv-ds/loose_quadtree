@@ -1,7 +1,7 @@
 #ifndef LOOSEQUADTREE_LOOSEQUADTREE_IMPL_H
 #define LOOSEQUADTREE_LOOSEQUADTREE_IMPL_H
 
-#include "LooseQuadtree.h"
+#include "../include/loose_quadtree/loose_quadtree.hpp"
 
 #include <array>
 #include <cassert>

@@ -1,19 +1,17 @@
-#include "LooseQuadtree.h"
+#include "../include/loose_quadtree/loose_quadtree.hpp"
 
 #include <chrono>
 #include <cstdlib>
 #include <cstdio>
 #include <random>
 #include <vector>
+#include <cassert>
 
 using namespace loose_quadtree;
 
 
 
-#define ASSERT(CONDITION) if (!(CONDITION)) {\
-	printf("Assertion failure %s:%d ASSERT(%s)\n", __FILE__, __LINE__, #CONDITION);\
-	abort();\
-	}
+#define ASSERT(CONDITION) assert(CONDITION)
 
 
 template <typename NumberT>
@@ -26,201 +24,6 @@ public:
 		bbox->height = object->height;
 	}
 };
-
-
-
-template <typename NumberT>
-void TestBoundingBox() {
-	BoundingBox<NumberT> big(100, 100, 200, 50);
-	BoundingBox<NumberT> small_inside(200, 125, 5, 5);
-	BoundingBox<NumberT> edge_inside(110, 110, 190, 40);
-	BoundingBox<NumberT> edge_outside(300, 150, 20, 5);
-	BoundingBox<NumberT> intersecting1(290, 90, 29, 25);
-	BoundingBox<NumberT> intersecting2(290, 110, 29, 25);
-	BoundingBox<NumberT> outside(290, 210, 29, 25);
-
-	ASSERT(big.Contains(100, 100));
-	ASSERT(!big.Contains(300, 150));
-
-	ASSERT(big.Contains(big));
-	ASSERT(big.Contains(small_inside));
-	ASSERT(!small_inside.Contains(big));
-	ASSERT(big.Contains(edge_inside));
-	ASSERT(!edge_inside.Contains(big));
-	ASSERT(!big.Contains(edge_outside));
-	ASSERT(!edge_outside.Contains(big));
-	ASSERT(!big.Contains(intersecting1));
-	ASSERT(!intersecting1.Contains(big));
-	ASSERT(!big.Contains(intersecting2));
-	ASSERT(!intersecting1.Contains(big));
-	ASSERT(!intersecting1.Contains(intersecting2));
-	ASSERT(!big.Contains(outside));
-	ASSERT(!outside.Contains(big));
-
-	ASSERT(big.Intersects(big));
-	ASSERT(big.Intersects(small_inside));
-	ASSERT(small_inside.Intersects(big));
-	ASSERT(big.Intersects(edge_inside));
-	ASSERT(edge_inside.Intersects(big));
-	ASSERT(!big.Intersects(edge_outside));
-	ASSERT(!edge_outside.Intersects(big));
-	ASSERT(big.Intersects(intersecting1));
-	ASSERT(intersecting1.Intersects(big));
-	ASSERT(big.Intersects(intersecting2));
-	ASSERT(intersecting2.Intersects(big));
-	ASSERT(intersecting1.Intersects(intersecting2));
-	ASSERT(!big.Intersects(outside));
-	ASSERT(!outside.Intersects(big));
-}
-
-
-
-template <typename NumberT>
-void TestForwardTreeTraversal() {
-	detail::BlocksAllocator allocator;
-	detail::ForwardTreeTraversal<NumberT, BoundingBox<NumberT>> fortt;
-	detail::TreeNode<BoundingBox<NumberT>> root(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tl(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tr(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> br(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> bl(allocator);
-	root.top_left = &tl;
-	tl.top_right = &tr;
-	tr.bottom_right = &br;
-	root.bottom_left = &bl;
-	fortt.StartAt(&root, BoundingBox<NumberT>(0, 0, 64, 64));
-	ASSERT(fortt.GetDepth() == 0);
-	ASSERT(fortt.GetNode() == &root);
-	ASSERT(fortt.GetNodeBoundingBox().left == 0);
-	ASSERT(fortt.GetNodeBoundingBox().top == 0);
-	ASSERT(fortt.GetNodeBoundingBox().width == 64);
-	ASSERT(fortt.GetNodeBoundingBox().height == 64);
-	fortt.GoTopLeft();
-	ASSERT(fortt.GetDepth() == 1);
-	ASSERT(fortt.GetNode() == &tl);
-	ASSERT(fortt.GetNodeBoundingBox().left == 0);
-	ASSERT(fortt.GetNodeBoundingBox().top == 0);
-	ASSERT(fortt.GetNodeBoundingBox().width == 32);
-	ASSERT(fortt.GetNodeBoundingBox().height == 32);
-	fortt.GoTopRight();
-	ASSERT(fortt.GetDepth() == 2);
-	ASSERT(fortt.GetNode() == &tr);
-	ASSERT(fortt.GetNodeBoundingBox().left == 16);
-	ASSERT(fortt.GetNodeBoundingBox().top == 0);
-	ASSERT(fortt.GetNodeBoundingBox().width == 16);
-	ASSERT(fortt.GetNodeBoundingBox().height == 16);
-	fortt.GoBottomRight();
-	ASSERT(fortt.GetDepth() == 3);
-	ASSERT(fortt.GetNode() == &br);
-	ASSERT(fortt.GetNodeBoundingBox().left == 24);
-	ASSERT(fortt.GetNodeBoundingBox().top == 8);
-	ASSERT(fortt.GetNodeBoundingBox().width == 8);
-	ASSERT(fortt.GetNodeBoundingBox().height == 8);
-	fortt.StartAt(&root, BoundingBox<NumberT>(0, 0, 64, 64));
-	ASSERT(fortt.GetDepth() == 0);
-	ASSERT(fortt.GetNode() == &root);
-	ASSERT(fortt.GetNodeBoundingBox().left == 0);
-	ASSERT(fortt.GetNodeBoundingBox().top == 0);
-	ASSERT(fortt.GetNodeBoundingBox().width == 64);
-	ASSERT(fortt.GetNodeBoundingBox().height == 64);
-	fortt.GoBottomLeft();
-	ASSERT(fortt.GetDepth() == 1);
-	ASSERT(fortt.GetNode() == &bl);
-	ASSERT(fortt.GetNodeBoundingBox().left == 0);
-	ASSERT(fortt.GetNodeBoundingBox().top == 32);
-	ASSERT(fortt.GetNodeBoundingBox().width == 32);
-	ASSERT(fortt.GetNodeBoundingBox().height == 32);
-}
-
-template <typename NumberT>
-void TestFullTreeTraversal() {
-	detail::BlocksAllocator allocator;
-	detail::FullTreeTraversal<NumberT, BoundingBox<NumberT>> fultt;
-	detail::TreeNode<BoundingBox<NumberT>> root(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tl(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tr(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> br(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> bl(allocator);
-	root.top_left = &tl;
-	tl.top_right = &tr;
-	tr.bottom_right = &br;
-	br.bottom_left = &bl;
-	fultt.StartAt(&root, BoundingBox<NumberT>(0, 0, 64, 64));
-	ASSERT(fultt.GetDepth() == 0);
-	ASSERT(fultt.GetNode() == &root);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kNone);
-	fultt.GoTopLeft();
-	ASSERT(fultt.GetDepth() == 1);
-	ASSERT(fultt.GetNode() == &tl);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kNone);
-	fultt.GoTopRight();
-	ASSERT(fultt.GetDepth() == 2);
-	ASSERT(fultt.GetNode() == &tr);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kNone);
-	fultt.GoBottomRight();
-	ASSERT(fultt.GetDepth() == 3);
-	ASSERT(fultt.GetNode() == &br);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kNone);
-	fultt.GoBottomLeft();
-	ASSERT(fultt.GetDepth() == 4);
-	ASSERT(fultt.GetNode() == &bl);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kNone);
-	fultt.GoUp();
-	ASSERT(fultt.GetDepth() == 3);
-	ASSERT(fultt.GetNode() == &br);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kBottomLeft);
-	fultt.GoUp();
-	ASSERT(fultt.GetDepth() == 2);
-	ASSERT(fultt.GetNode() == &tr);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kBottomRight);
-	fultt.GoUp();
-	ASSERT(fultt.GetDepth() == 1);
-	ASSERT(fultt.GetNode() == &tl);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kTopRight);
-	fultt.GoUp();
-	ASSERT(fultt.GetDepth() == 0);
-	ASSERT(fultt.GetNode() == &root);
-	ASSERT(fultt.GetNodeCurrentChild() == detail::ChildPosition::kTopLeft);
-}
-
-template <typename NumberT>
-void TestBoundingBoxDiscrepancy() {
-	detail::BlocksAllocator allocator;
-	detail::FullTreeTraversal<NumberT, BoundingBox<NumberT>> ftt;
-	detail::TreeNode<BoundingBox<NumberT>> root(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tl(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> tr(allocator);
-	detail::TreeNode<BoundingBox<NumberT>> br(allocator);
-	root.top_left = &tl;
-	root.top_right = &tr;
-	root.bottom_right = &br;
-	ftt.StartAt(&root, BoundingBox<NumberT>(10, 10, 17, 19));
-	NumberT orig_width = ftt.GetNodeBoundingBox().width;
-	NumberT orig_height = ftt.GetNodeBoundingBox().height;
-	ftt.GoTopLeft();
-	NumberT tl_width = ftt.GetNodeBoundingBox().width;
-	NumberT tl_height = ftt.GetNodeBoundingBox().height;
-	ftt.GoUp();
-	ftt.GoTopRight();
-	NumberT tr_width = ftt.GetNodeBoundingBox().width;
-	NumberT tr_height = ftt.GetNodeBoundingBox().height;
-	ftt.GoUp();
-	ftt.GoBottomRight();
-	NumberT br_width = ftt.GetNodeBoundingBox().width;
-	NumberT br_height = ftt.GetNodeBoundingBox().height;
-	ftt.GoUp();
-	ASSERT(orig_width == tl_width + tr_width);
-	ASSERT(orig_height == tl_height + br_height);
-	ASSERT(tr_width == br_width);
-	ASSERT(tl_height == tr_height);
-}
-
-template <typename NumberT>
-void TestTraversals() {
-	TestForwardTreeTraversal<NumberT>();
-	TestFullTreeTraversal<NumberT>();
-	TestBoundingBoxDiscrepancy<NumberT>();
-}
 
 
 template <typename NumberT>
@@ -650,7 +453,7 @@ void StressTest() {
 			while (!query.EndOfQuery()) {
 				BoundingBox<NumberT>* obj = query.GetCurrent();
 				ASSERT(query_region.Intersects(*obj));
-				std::size_t id = (std::size_t)(obj - &objects[0]);
+				auto id = (std::size_t)(obj - &objects[0]);
 				ASSERT(id >= 0 && id < objects_generated);
 				flags[id] = true;
 				query.Next();
@@ -698,8 +501,6 @@ template <typename NumberT>
 void RunTests(const char* type_str) {
 	printf("***** Running tests for %s (%lu-bit)... ", type_str, sizeof(NumberT) * 8);
 	auto start = std::chrono::high_resolution_clock::now();
-	TestBoundingBox<NumberT>();
-	TestTraversals<NumberT>();
 	TestContainer<NumberT>();
 	TestQueries<NumberT>();
 	StressTest<NumberT>();

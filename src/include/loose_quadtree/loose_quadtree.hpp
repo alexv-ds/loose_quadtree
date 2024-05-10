@@ -1,5 +1,5 @@
-#ifndef LOOSEQUADTREE_LOOSEQUADTREE_H
-#define LOOSEQUADTREE_LOOSEQUADTREE_H
+#ifndef LOOSEQUADTREE_LOOSE_QUADTREE_HPP
+#define LOOSEQUADTREE_LOOSE_QUADTREE_HPP
 
 /**
  * LooseQuadtree written by Zozo
@@ -113,6 +113,6 @@ private:
 
 } //loose_quadtree
 
-#include "LooseQuadtree-impl.h"
+#include "../../impl/LooseQuadtree-impl.h"
 
-#endif //LOOSEQUADTREE_LOOSEQUADTREE_H
+#endif //LOOSEQUADTREE_LOOSE_QUADTREE_HPP
