@@ -7,13 +7,18 @@ project(loose_quadtree
   LANGUAGES CXX
 )
 
-if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds not allowed")
-endif()
+endif ()
 
 set(QUADTREE_ENABLE_WALL ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Enable all warnings")
 set(QUADTREE_ENABLE_WERROR ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Interpret warnings as errors")
 set(QUADTREE_BUILD_TESTING ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Build tests")
+
+include(CMakeDependentOption)
+cmake_dependent_option(QUADTREE_CODE_COVERAGE "Enable code coverage" OFF "QUADTREE_BUILD_TESTING" OFF)
+cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_XML "Enable code coverage" OFF "QUADTREE_CODE_COVERAGE" OFF)
+cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_HTML "Enable code coverage" ON "QUADTREE_CODE_COVERAGE" OFF)
 
 add_library(loose_quadtree INTERFACE
   src/include/loose_quadtree/loose_quadtree.hpp
@@ -62,4 +67,27 @@ if (QUADTREE_BUILD_TESTING)
   include(CTest)
   include(Catch)
   catch_discover_tests(tests_loose_quadtree)
+endif ()
+
+if (QUADTREE_CODE_COVERAGE)
+  include(cmake/CodeCoverage.cmake)
+  append_coverage_compiler_flags_to_target(tests_loose_quadtree)
+  
+  if (QUADTREE_CODE_COVERAGE_REPORT_HTML)
+    setup_target_for_coverage_gcovr_html(
+      NAME coverage_html
+      EXECUTABLE ctest
+      DEPENDENCIES tests_loose_quadtree
+      BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+    )
+  endif ()
+  
+  if (QUADTREE_CODE_COVERAGE_REPORT_XML)
+    setup_target_for_coverage_gcovr_xml(
+      NAME coverage_xml
+      EXECUTABLE ctest
+      DEPENDENCIES tests_loose_quadtree
+      BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+    )
+  endif ()
 endif ()
