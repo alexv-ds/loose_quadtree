@@ -17,8 +17,10 @@ set(QUADTREE_BUILD_TESTING ${PROJECT_IS_TOP_LEVEL} CACHE BOOL "Build tests")
 
 include(CMakeDependentOption)
 cmake_dependent_option(QUADTREE_CODE_COVERAGE "Enable code coverage" OFF "QUADTREE_BUILD_TESTING" OFF)
-cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_XML "Enable code coverage" OFF "QUADTREE_CODE_COVERAGE" OFF)
-cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_HTML "Enable code coverage" ON "QUADTREE_CODE_COVERAGE" OFF)
+cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_XML "Add coverage_xml target" OFF "QUADTREE_CODE_COVERAGE" OFF)
+cmake_dependent_option(QUADTREE_CODE_COVERAGE_REPORT_HTML "Add coverage_html target" ON "QUADTREE_CODE_COVERAGE" OFF)
+# Automatically running tests when creating a coverage report is useful, but completely unnecessary in github actions
+cmake_dependent_option(QUADTREE_CODE_COVERAGE_AUTORUN_TESTS "Automatically run test on coverage target" ON "QUADTREE_CODE_COVERAGE" OFF)
 
 add_library(loose_quadtree INTERFACE
   src/include/loose_quadtree/loose_quadtree.hpp
@@ -47,19 +49,11 @@ target_compile_options(loose_quadtree INTERFACE
   $<$<BOOL:${QUADTREE_ENABLE_WERROR}>:$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Werror>>
 )
 
+# load dependencies via CPM.cmake
+# separate file for easy configuration of caching in github actions
+include(cmake/cpm-dependencies.cmake)
+
 if (QUADTREE_BUILD_TESTING)
-  include(cmake/get_cpm.cmake)
-  
-  CPMAddPackage(
-    NAME Catch2
-    URL "https://github.com/catchorg/Catch2/archive/refs/tags/v3.6.0.tar.gz"
-    URL_HASH "SHA3_256=3d6e6a833f3b0209b871c05f0658f5993b8613d2ea293084a1da04b53bfb9d90"
-    OPTIONS
-    "CATCH_INSTALL_DOCS OFF"
-    "CATCH_INSTALL_EXTRAS OFF"
-  )
-  list(APPEND CMAKE_MODULE_PATH "${Catch2_SOURCE_DIR}/extras")
-  
   add_executable(tests_loose_quadtree
     test/loose_quadtree.test.cpp
   )
@@ -73,21 +67,29 @@ if (QUADTREE_CODE_COVERAGE)
   include(cmake/CodeCoverage.cmake)
   append_coverage_compiler_flags_to_target(tests_loose_quadtree)
   
+  if (QUADTREE_CODE_COVERAGE_AUTORUN_TESTS)
+    set(COVERAGE_EXECUTABLE_ARG "ctest")
+  else ()
+    set(COVERAGE_EXECUTABLE_ARG "")
+  endif ()
+  
   if (QUADTREE_CODE_COVERAGE_REPORT_HTML)
     setup_target_for_coverage_gcovr_html(
       NAME coverage_html
-      EXECUTABLE ctest
+      EXECUTABLE "${COVERAGE_EXECUTABLE_ARG}"
       DEPENDENCIES tests_loose_quadtree
       BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+      EXCLUDE "${PROJECT_SOURCE_DIR}/test"
     )
   endif ()
   
   if (QUADTREE_CODE_COVERAGE_REPORT_XML)
     setup_target_for_coverage_gcovr_xml(
       NAME coverage_xml
-      EXECUTABLE ctest
+      EXECUTABLE "${COVERAGE_EXECUTABLE_ARG}"
       DEPENDENCIES tests_loose_quadtree
       BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+      EXCLUDE "${PROJECT_SOURCE_DIR}/test"
     )
   endif ()
 endif ()

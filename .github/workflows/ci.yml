@@ -1,0 +1,82 @@
+name: CI
+
+on: [ push, pull_request, workflow_dispatch ]
+
+concurrency:
+  group: "environment-${{github.ref}}"
+  cancel-in-progress: true
+
+env:
+  CPM_SOURCE_CACHE: cpm-cache
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tests_build_and_run:
+    name: "${{ matrix.platform.name }} ${{ matrix.type.name }}"
+    runs-on: "${{ matrix.platform.os }}"
+    env:
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { name: Linux GCC, os: ubuntu-22.04, flags: -GNinja -DCMAKE_CXX_COMPILER=g++ }
+#          - { name: Linux CLANG, os: ubuntu-22.04, flags: -GNinja -DCMAKE_CXX_COMPILER=clang++ }
+#          - { name: Windows VS2022 x64, os: windows-2022, flags: -G "Visual Studio 17 2022" }
+        type:
+          - { name: Release }
+          - { name: Debug, flags: -DQUADTREE_CODE_COVERAGE=ON -DQUADTREE_CODE_COVERAGE_REPORT_XML=ON -DQUADTREE_CODE_COVERAGE_REPORT_HTML=OFF -DQUADTREE_CODE_COVERAGE_AUTORUN_TESTS=OFF}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.21
+          ninjaVersion: latest
+
+      - name: Install gcovr
+        if: matrix.type.name == 'Debug'
+        uses: threeal/pipx-install-action@v1
+        with:
+          packages: gcovr
+
+      - name: Setup CCache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          verbose: 2
+          key: "${{ matrix.platform.name }}-${{ matrix.type.name }}"
+
+      - name: Setup CPM Cache
+        uses: actions/cache@v3
+        with:
+          key: cpm-cache-${{ hashFiles('cmake/cpm-dependencies.cmake') }}
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          enableCrossOsArchive: true
+
+      - name: Configure CMake
+        run: cmake -Bbuild -DCMAKE_BUILD_TYPE=${{ matrix.type.name }} ${{ matrix.platform.flags }} ${{ matrix.type.flags }}
+
+      - name: Build
+        run: cmake --build build --parallel --config ${{  matrix.type.name == 'Debug' && 'Debug' || 'Release' }}
+
+      - name: Run Tests
+        run: ctest --test-dir build
+
+      - name: Make Coverage Report
+        if: matrix.type.name == 'Debug'
+        run: cmake --build build --target coverage_xml --parallel --config Debug
+
+      - name: Upload coverage report
+        if: matrix.type.name == 'Debug'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: build/coverage_xml.xml
+          fail_ci_if_error: true
