@@ -121,3 +121,47 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: build/coverage_xml.xml
           fail_ci_if_error: true
+
+
+
+  valgrind_check:
+    name: Valgrind Memcheck
+    needs: tests_build_and_run
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Valgrind
+        run: sudo apt-get update && sudo apt-get install valgrind
+
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{ env.ACTION_CMAKE_VERSION }}
+          ninjaVersion: ${{ env.ACTION_NINJA_VERSION }}
+          useLocalCache: true
+          useCloudCache: true
+
+      - name: Setup CCache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          verbose: 2
+          key: "valgrind-ccache"
+
+      - name: Setup CPM Cache
+        uses: actions/cache@v3
+        with:
+          key: cpm-cache-${{ hashFiles('cmake/cpm-dependencies.cmake') }}
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          enableCrossOsArchive: true
+
+      - name: Configure CMake
+        run: cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Valgrind Memcheck
+        run: valgrind --error-exitcode=1 --leak-check=full ./build/tests_loose_quadtree
