@@ -732,7 +732,13 @@ void
 	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
 Release() {
 	assert(!IsAvailable());
-	quadtree_ = nullptr;
+  // state reset
+  this->quadtree_ = nullptr;
+  this->traversal_ = {};
+  this->object_iterator_ = {};
+  this->object_iterator_before_ = {};
+  this->query_type_ = {};
+  this->free_ride_from_level_ = {};
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
