@@ -72,3 +72,10 @@ jobs:
       - name: Make Coverage Report
         if: matrix.type.name == 'Debug'
         run: cmake --build build --target coverage_xml --parallel --config Debug
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: build/coverage_xml.xml
+          fail_ci_if_error: true
