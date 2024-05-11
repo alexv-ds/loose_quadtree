@@ -207,9 +207,9 @@ TEMPLATE_TEST_CASE("TestInsertRemove", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(1000, 1300, 50, 30);
-  objects.emplace_back(1060, 1300, 50, 30);
-  objects.emplace_back(1060, 1300, 5, 3);
+  objects.push_back({1000, 1300, 50, 30});
+  objects.push_back({1060, 1300, 50, 30});
+  objects.push_back({1060, 1300, 5, 3});
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
@@ -315,9 +315,9 @@ TEMPLATE_TEST_CASE("TestUpdate", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(1000, 1000, 50, 30);
-  objects.emplace_back(1060, 1000, 50, 30);
-  objects.emplace_back(1060, 1000, 5, 3);
+  objects.push_back({1000, 1000, 50, 30});
+  objects.push_back({1060, 1000, 50, 30});
+  objects.push_back({1060, 1000, 5, 3});
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
@@ -398,9 +398,9 @@ TEMPLATE_TEST_CASE("TestMoreTrees", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(1000, 1000, 50, 30);
-  objects.emplace_back(1060, 1000, 50, 30);
-  objects.emplace_back(1060, 1000, 5, 3);
+  objects.push_back({1000, 1000, 50, 30});
+  objects.push_back({1060, 1000, 50, 30});
+  objects.push_back({1060, 1000, 5, 3});
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
@@ -512,13 +512,13 @@ TEMPLATE_TEST_CASE("TestMoreTrees", "", TYPES_FOR_TESTING) {
 
 TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(10000, 10000, 8000, 8000);//0
-  objects.emplace_back(10000, 10000, 7000, 6000);//1
-  objects.emplace_back(10000, 10000, 7, 6);//2
-  objects.emplace_back(15000, 15000, 500, 600);//3
-  objects.emplace_back(15100, 15100, 200, 200);//4
-  objects.emplace_back(15000, 15000, 200, 200);//5
-  objects.emplace_back(15100, 15100, 2, 2);//6
+  objects.push_back({10000, 10000, 8000, 8000});//0
+  objects.push_back({10000, 10000, 7000, 6000});//1
+  objects.push_back({10000, 10000, 7, 6});//2
+  objects.push_back({15000, 15000, 500, 600});//3
+  objects.push_back({15100, 15100, 200, 200});//4
+  objects.push_back({15000, 15000, 200, 200});//5
+  objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj : objects) {
     lqt.Insert(&obj);
@@ -560,13 +560,13 @@ TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
 
 TEMPLATE_TEST_CASE("TestQueryInside", "", TYPES_FOR_TESTING) {
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(10000, 10000, 8000, 8000);//0
-  objects.emplace_back(10000, 10000, 7000, 6000);//1
-  objects.emplace_back(10000, 10000, 7, 6);//2
-  objects.emplace_back(15000, 15000, 500, 600);//3
-  objects.emplace_back(15100, 15100, 200, 200);//4
-  objects.emplace_back(15000, 15000, 200, 200);//5
-  objects.emplace_back(15100, 15100, 2, 2);//6
+  objects.push_back({10000, 10000, 8000, 8000});//0
+  objects.push_back({10000, 10000, 7000, 6000});//1
+  objects.push_back({10000, 10000, 7, 6});//2
+  objects.push_back({15000, 15000, 500, 600});//3
+  objects.push_back({15100, 15100, 200, 200});//4
+  objects.push_back({15000, 15000, 200, 200});//5
+  objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj : objects) {
     lqt.Insert(&obj);
@@ -601,13 +601,13 @@ TEMPLATE_TEST_CASE("TestQueryInside", "", TYPES_FOR_TESTING) {
 
 TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
   std::vector<loose_quadtree::BoundingBox<TestType>> objects;
-  objects.emplace_back(10000, 10000, 8000, 8000);//0
-  objects.emplace_back(10000, 10000, 7000, 6000);//1
-  objects.emplace_back(10000, 10000, 7, 6);//2
-  objects.emplace_back(15000, 15000, 500, 600);//3
-  objects.emplace_back(15100, 15100, 200, 200);//4
-  objects.emplace_back(15000, 15000, 200, 200);//5
-  objects.emplace_back(15100, 15100, 2, 2);//6
+  objects.push_back({10000, 10000, 8000, 8000});//0
+  objects.push_back({10000, 10000, 7000, 6000});//1
+  objects.push_back({10000, 10000, 7, 6});//2
+  objects.push_back({15000, 15000, 500, 600});//3
+  objects.push_back({15100, 15100, 200, 200});//4
+  objects.push_back({15000, 15000, 200, 200});//5
+  objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj : objects) {
     lqt.Insert(&obj);
