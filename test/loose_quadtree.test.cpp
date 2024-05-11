@@ -653,7 +653,6 @@ TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
 /*
 // maybe banchmarck?
 TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
-  return; // disable
 #ifndef NDEBUG
   const int objects_generated = 10000;
   const int object_fluctuation = 1000;
@@ -753,4 +752,5 @@ TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
     }
   }
   lqt.ForceCleanup();
-}*/
+}
+//*/
