@@ -520,24 +520,24 @@ TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
-  for (auto& obj : objects) {
+  for (auto& obj: objects) {
     lqt.Insert(&obj);
   }
 
-  auto query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(33,33,1,1));
+  auto query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
   REQUIRE(query.EndOfQuery());
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(9000,9000,9000,9000));
+  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
   int count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
-    (void)obj;
+    (void) obj;
     count++;
     query.Next();
   }
   REQUIRE(count == 7);
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(10003,10003,3,7));
+  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
   count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
@@ -547,7 +547,7 @@ TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
   }
   REQUIRE(count == 3);
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(14900,14900,200,200));
+  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 200, 200));
   count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
@@ -568,27 +568,27 @@ TEMPLATE_TEST_CASE("TestQueryInside", "", TYPES_FOR_TESTING) {
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
-  for (auto& obj : objects) {
+  for (auto& obj: objects) {
     lqt.Insert(&obj);
   }
 
-  auto query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(33,33,1,1));
+  auto query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
   REQUIRE(query.EndOfQuery());
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(9000,9000,9000,9000));
+  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
   int count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
-    (void)obj;
+    (void) obj;
     count++;
     query.Next();
   }
   REQUIRE(count == 7);
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(10003,10003,3,7));
+  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
   REQUIRE(query.EndOfQuery());
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(14900,14900,300,300));
+  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 300, 300));
   count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
@@ -609,17 +609,17 @@ TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
   loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
-  for (auto& obj : objects) {
+  for (auto& obj: objects) {
     lqt.Insert(&obj);
   }
 
-  auto query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(33,33,1,1));
+  auto query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
   REQUIRE(query.EndOfQuery());
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(9000,9000,9000,9000));
+  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
   REQUIRE(query.EndOfQuery());
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(10003,10003,3,7));
+  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
   int count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
@@ -629,7 +629,7 @@ TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
   }
   REQUIRE(count == 2);
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(14900,14900,200,200));
+  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 200, 200));
   count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
@@ -639,7 +639,7 @@ TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
   }
   REQUIRE(count == 2);
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(15000,15000,2,2));
+  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(15000, 15000, 2, 2));
   count = 0;
   while (!query.EndOfQuery()) {
     loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
