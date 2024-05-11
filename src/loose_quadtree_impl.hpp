@@ -22,7 +22,7 @@ namespace detail {
 
 #define LQT_USE_OWN_ALLOCATOR
 
-
+// TODO: Rewrite it
 class BlocksAllocator {
 public:
 	const static std::size_t kBlockAlign = alignof(long double);
@@ -228,6 +228,7 @@ void BlocksAllocator::ReleaseFreeBlocks() {
 			if (address_empties_it->second >= blocks_head.slots_in_a_block_) {
 				auto prev_address_empties_it = address_empties_it;
 				address_empties_it++;
+				delete prev_address_empties_it->first;
 				blocks_head.address_to_empty_slot_number.erase(prev_address_empties_it);
 			}
 			else {
