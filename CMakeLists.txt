@@ -79,6 +79,7 @@ if (QUADTREE_CODE_COVERAGE)
       EXECUTABLE "${COVERAGE_EXECUTABLE_ARG}"
       DEPENDENCIES tests_loose_quadtree
       BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+      EXCLUDE "${PROJECT_SOURCE_DIR}/test"
     )
   endif ()
   
@@ -88,6 +89,7 @@ if (QUADTREE_CODE_COVERAGE)
       EXECUTABLE "${COVERAGE_EXECUTABLE_ARG}"
       DEPENDENCIES tests_loose_quadtree
       BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+      EXCLUDE "${PROJECT_SOURCE_DIR}/test"
     )
   endif ()
 endif ()
