@@ -1,7 +1,7 @@
 #ifndef LOOSEQUADTREE_LOOSEQUADTREE_IMPL_H
 #define LOOSEQUADTREE_LOOSEQUADTREE_IMPL_H
 
-#include "LooseQuadtree.h"
+#include "loose_quadtree/loose_quadtree.hpp"
 
 #include <array>
 #include <cassert>
@@ -22,7 +22,7 @@ namespace detail {
 
 #define LQT_USE_OWN_ALLOCATOR
 
-
+// TODO: Rewrite it
 class BlocksAllocator {
 public:
 	const static std::size_t kBlockAlign = alignof(long double);
@@ -228,6 +228,7 @@ void BlocksAllocator::ReleaseFreeBlocks() {
 			if (address_empties_it->second >= blocks_head.slots_in_a_block_) {
 				auto prev_address_empties_it = address_empties_it;
 				address_empties_it++;
+				delete prev_address_empties_it->first;
 				blocks_head.address_to_empty_slot_number.erase(prev_address_empties_it);
 			}
 			else {
@@ -345,21 +346,21 @@ public:
 	using Object = ObjectT;
 
 	struct TreePosition {
-		TreePosition(const BoundingBox<Number>& _bbox, TreeNode<Object>* _node) :
-			bounding_box(_bbox), node(_node) {
+		TreePosition(const bounding_box<Number>& _bbox, TreeNode<Object>* _node) :
+      bbox(_bbox), node(_node) {
 			current_child = ChildPosition::kNone;
 		}
 
-		BoundingBox<Number> bounding_box;
+		bounding_box<Number> bbox;
 		TreeNode<Object>* node;
 		ChildPosition current_child;
 	};
 
 	ForwardTreeTraversal();
-	void StartAt(TreeNode<Object>* root, const BoundingBox<Number>& root_bounds);
+	void StartAt(TreeNode<Object>* root, const bounding_box<Number>& root_bounds);
 	int GetDepth() const; ///< starting from 0
 	TreeNode<Object>* GetNode() const;
-	const BoundingBox<Number>& GetNodeBoundingBox() const;
+	const bounding_box<Number>& GetNodeBoundingBox() const;
 	void GoTopLeft();
 	void GoTopRight();
 	void GoBottomRight();
@@ -379,7 +380,7 @@ public:
 	using Object = ObjectT;
 	using typename ForwardTreeTraversal<Number, Object>::TreePosition;
 
-	void StartAt(TreeNode<Object>* root, const BoundingBox<Number>& root_bounds);
+	void StartAt(TreeNode<Object>* root, const bounding_box<Number>& root_bounds);
 	ChildPosition GetNodeCurrentChild() const;
 	void SetNodeCurrentChild(ChildPosition child_position);
 	void GoUp();
@@ -403,17 +404,17 @@ private:
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 class
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
 Impl {
 public:
 	enum class QueryType {kIntersects, kInside, kContains, kEndOfQuery};
 
 	Impl();
-	void Acquire(typename LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl* quadtree,
-		const BoundingBox<Number>* query_region, QueryType query_type);
+	void Acquire(typename quad_tree<Number, Object, BoundingBoxExtractor>::impl* quadtree,
+               const bounding_box<Number>* query_region, QueryType query_type);
 	void Release();
 	bool IsAvailable() const;
-	bool EndOfQuery() const;
+	bool end_of_query() const;
 	Object* GetCurrent() const;
 	void Next();
 
@@ -423,11 +424,11 @@ private:
 	bool CurrentObjectFits() const;
 	FitType CurrentNodeFits() const;
 
-	typename LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl* quadtree_;
+	typename quad_tree<Number, Object, BoundingBoxExtractor>::impl* quadtree_;
 	detail::FullTreeTraversal<Number, Object> traversal_;
 	typename detail::TreeNode<Object>::ObjectContainer::iterator object_iterator_;
 	typename detail::TreeNode<Object>::ObjectContainer::iterator object_iterator_before_;
-	BoundingBox<Number> query_region_;
+	bounding_box<Number> query_region_;
 	QueryType query_type_;
 	int free_ride_from_level_;
 };
@@ -436,8 +437,8 @@ private:
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 class
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Impl {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+impl {
 public:
 	constexpr static int kInternalMinDepth = 4;
 	constexpr static int kInternalMaxDepth = (sizeof(long long) * 8 - 1) / 2;
@@ -445,40 +446,40 @@ public:
 		std::is_integral<Number>::value ? 1 :
 			std::numeric_limits<Number>::min() * 16;
 
-	Impl();
-	~Impl();
-	Impl(const Impl&) = delete;
-	Impl& operator=(const Impl&) = delete;
+	impl();
+	~impl();
+	impl(const impl&) = delete;
+	impl& operator=(const impl&) = delete;
 
 	bool Insert(Object* object);
 	bool Update(Object* object);
 	bool Remove(Object* object);
 	bool Contains(Object* object) const;
-	Query QueryIntersectsRegion(const BoundingBox<Number>& region);
-	Query QueryInsideRegion(const BoundingBox<Number>& region);
-	Query QueryContainsRegion(const BoundingBox<Number>& region);
-	const BoundingBox<Number>& GetBoundingBox() const; ///< loose sense bounds
+	query QueryIntersectsRegion(const bounding_box<Number>& region);
+	query QueryInsideRegion(const bounding_box<Number>& region);
+	query QueryContainsRegion(const bounding_box<Number>& region);
+	const bounding_box<Number>& GetBoundingBox() const; ///< loose sense bounds
 	int GetSize() const;
 	void Clear();
 	void ForceCleanup();
 
 private:
-	friend class Query::Impl;
+	friend class query::Impl;
 	using ObjectPointerContainer =
 		std::unordered_map<Object*, Object**,
 		std::hash<Object*>, std::equal_to<Object*>,
 		detail::BlocksAllocatorAdaptor<std::pair<Object *const, Object**>>>;
 	using QueryPoolContainer =
-		std::deque<typename LooseQuadtree<Number, Object, BoundingBoxExtractor>::Query::Impl>;
+		std::deque<typename quad_tree<Number, Object, BoundingBoxExtractor>::query::Impl>;
 
 	void RecalculateMaximalDepth();
 	void DeleteTree();
 	Object** InsertIntoTree(Object* object);
-	typename Query::Impl* GetAvailableQueryFromPool();
+	typename query::Impl* GetAvailableQueryFromPool();
 
 	detail::BlocksAllocator allocator_;
 	detail::TreeNode<Object>* root_;
-	BoundingBox<Number> bounding_box_;
+	bounding_box<Number> bounding_box_;
 	ObjectPointerContainer object_pointers_;
 	int number_of_objects_;
 	int maximal_depth_;
@@ -494,8 +495,8 @@ private:
 
 template <typename NumberT>
 bool
-	BoundingBox<NumberT>::
-Intersects(const BoundingBox<Number>& other) const {
+	bounding_box<NumberT>::
+intersects(const bounding_box<Number>& other) const {
 	return !(
 		left + width <= other.left || other.left + other.width <= left ||
 		top + height <= other.top || other.top + other.height <= top
@@ -504,16 +505,16 @@ Intersects(const BoundingBox<Number>& other) const {
 
 template <typename NumberT>
 bool
-	BoundingBox<NumberT>::
-Contains(const BoundingBox<Number>& other)  const {
+	bounding_box<NumberT>::
+contains(const bounding_box<Number>& other)  const {
 	return left <= other.left && left + width >= other.left + other.width &&
 		top <= other.top && top + height >= other.top + other.height;
 }
 
 template <typename NumberT>
 bool
-	BoundingBox<NumberT>::
-Contains(Number x, Number y) const {
+	bounding_box<NumberT>::
+contains(Number x, Number y) const {
 	return left <= x && x < left + width &&
 		top <= y && y < top + height;
 }
@@ -523,14 +524,14 @@ Contains(Number x, Number y) const {
 template <typename NumberT, typename ObjectT>
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 ForwardTreeTraversal() :
-	position_(BoundingBox<Number>(0, 0, 0, 0), nullptr), depth_(0) {
+	position_(bounding_box<Number>(0, 0, 0, 0), nullptr), depth_(0) {
 }
 
 template <typename NumberT, typename ObjectT>
 void
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
-StartAt(TreeNode<Object>* root, const BoundingBox<Number>& root_bounds) {
-	position_.bounding_box = root_bounds;
+StartAt(TreeNode<Object>* root, const bounding_box<Number>& root_bounds) {
+	position_.bbox = root_bounds;
 	position_.node = root;
 	depth_ = 0;
 }
@@ -550,17 +551,17 @@ GetNode() const {
 }
 
 template <typename NumberT, typename ObjectT>
-const BoundingBox<NumberT>&
+const bounding_box<NumberT>&
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 GetNodeBoundingBox() const {
-	return position_.bounding_box;
+	return position_.bbox;
 }
 
 template <typename NumberT, typename ObjectT>
 void
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 GoTopLeft() {
-	BoundingBox<Number>& bbox = position_.bounding_box;
+	bounding_box<Number>& bbox = position_.bbox;
 	bbox.width = (Number)((typename MakeDistance<Number>::Type)bbox.width / 2);
 	bbox.height = (Number)((typename MakeDistance<Number>::Type)bbox.height / 2);
 	position_.node = position_.node->top_left;
@@ -572,7 +573,7 @@ template <typename NumberT, typename ObjectT>
 void
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 GoTopRight() {
-	BoundingBox<Number>& bbox = position_.bounding_box;
+	bounding_box<Number>& bbox = position_.bbox;
 	Number right = (Number)(bbox.left + bbox.width);
 	bbox.left = (Number)(bbox.left +
 			(Number)((typename MakeDistance<Number>::Type)bbox.width / 2));
@@ -587,7 +588,7 @@ template <typename NumberT, typename ObjectT>
 void
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 GoBottomRight() {
-	BoundingBox<Number>& bbox = position_.bounding_box;
+	bounding_box<Number>& bbox = position_.bbox;
 	Number right = (Number)(bbox.left + bbox.width);
 	bbox.left = (Number)(bbox.left +
 			(Number)((typename MakeDistance<Number>::Type)bbox.width / 2));
@@ -605,7 +606,7 @@ template <typename NumberT, typename ObjectT>
 void
 	detail::ForwardTreeTraversal<NumberT, ObjectT>::
 GoBottomLeft() {
-	BoundingBox<Number>& bbox = position_.bounding_box;
+	bounding_box<Number>& bbox = position_.bbox;
 	bbox.width = (Number)((typename MakeDistance<Number>::Type)bbox.width / 2);
 	Number bottom = (Number)(bbox.top + bbox.height);
 	bbox.top = (Number)(bbox.top +
@@ -621,7 +622,7 @@ GoBottomLeft() {
 template <typename NumberT, typename ObjectT>
 void
 	detail::FullTreeTraversal<NumberT, ObjectT>::
-StartAt(TreeNode<Object>* root, const BoundingBox<Number>& root_bounds) {
+StartAt(TreeNode<Object>* root, const bounding_box<Number>& root_bounds) {
 	ForwardTreeTraversal<Number, Object>::StartAt(root, root_bounds);
 	position_.current_child = ChildPosition::kNone;
 	position_stack_.clear();
@@ -698,24 +699,24 @@ GoUp() {
 
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 Impl() : quadtree_(nullptr), query_region_(0,0,0,0),
 	query_type_(QueryType::kEndOfQuery),
-	free_ride_from_level_(LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl::kInternalMaxDepth) {
+	free_ride_from_level_(quad_tree<Number, Object, BoundingBoxExtractor>::impl::kInternalMaxDepth) {
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
-Acquire(typename LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl* quadtree,
-		const BoundingBox<Number>* query_region, QueryType query_type) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
+Acquire(typename quad_tree<Number, Object, BoundingBoxExtractor>::impl* quadtree,
+        const bounding_box<Number>* query_region, QueryType query_type) {
 	assert(IsAvailable());
 	assert(query_type != QueryType::kEndOfQuery);
 	quadtree_ = quadtree;
 	query_region_ = *query_region;
 	query_type_ = query_type;
 	free_ride_from_level_ =
-		LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl::kInternalMaxDepth;
+		quad_tree<Number, Object, BoundingBoxExtractor>::impl::kInternalMaxDepth;
 	if (quadtree->root_ == nullptr) {
 		query_type_ = QueryType::kEndOfQuery;
 	}
@@ -729,23 +730,29 @@ Acquire(typename LooseQuadtree<Number, Object, BoundingBoxExtractor>::Impl* quad
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 Release() {
 	assert(!IsAvailable());
-	quadtree_ = nullptr;
+  // state reset
+  this->quadtree_ = nullptr;
+  this->traversal_ = {};
+  this->object_iterator_ = {};
+  this->object_iterator_before_ = {};
+  this->query_type_ = {};
+  this->free_ride_from_level_ = {};
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 IsAvailable() const {
 	return quadtree_ == nullptr;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
-EndOfQuery() const {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
+end_of_query() const {
 	assert(!IsAvailable());
 	return query_type_ == QueryType::kEndOfQuery;
 }
@@ -753,19 +760,19 @@ EndOfQuery() const {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 ObjectT*
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 GetCurrent() const {
 	assert(!IsAvailable());
-	assert(!EndOfQuery());
+	assert(!end_of_query());
 	return *object_iterator_;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 Next() {
 	assert(!IsAvailable());
-	assert(!EndOfQuery());
+	assert(!end_of_query());
 	do {
 		object_iterator_before_ = object_iterator_;
 		object_iterator_++;
@@ -813,7 +820,7 @@ Next() {
 #ifndef NDEBUG
 					int running_queries = 0;
 					for (auto& query : quadtree_->query_pool_) {
-						if (!query.IsAvailable() && !query.EndOfQuery()) running_queries++;
+						if (!query.IsAvailable() && !query.end_of_query()) running_queries++;
 					}
 					assert(running_queries == quadtree_->running_queries_);
 #endif
@@ -866,8 +873,8 @@ Next() {
 
 						if (free_ride_from_level_ == traversal_.GetDepth() + 1) {
 							free_ride_from_level_ =
-								LooseQuadtree<Number, Object,
-									BoundingBoxExtractor>::Impl::kInternalMaxDepth;
+								quad_tree<Number, Object,
+									BoundingBoxExtractor>::impl::kInternalMaxDepth;
 						}
 						continue;
 					}
@@ -883,7 +890,7 @@ Next() {
 							assert(quadtree_->object_pointers_.size() == 0);
 							quadtree_->allocator_.Delete(quadtree_->root_);
 							quadtree_->root_ = nullptr;
-							quadtree_->bounding_box_ = BoundingBox<Number>(0,0,0,0);
+							quadtree_->bounding_box_ = bounding_box<Number>(0, 0, 0, 0);
 						}
 
 						quadtree_->running_queries_--;
@@ -927,17 +934,17 @@ Next() {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 CurrentObjectFits() const {
-	BoundingBox<Number> object_bounds(0,0,0,0);
+	bounding_box<Number> object_bounds(0, 0, 0, 0);
 	BoundingBoxExtractor::ExtractBoundingBox(GetCurrent(), &object_bounds);
 	switch (query_type_) {
 	case QueryType::kIntersects:
-		return query_region_.Intersects(object_bounds);
+		return query_region_.intersects(object_bounds);
 	case QueryType::kInside:
-		return query_region_.Contains(object_bounds);
+		return query_region_.contains(object_bounds);
 	case QueryType::kContains:
-		return object_bounds.Contains(query_region_);
+		return object_bounds.contains(query_region_);
 	case QueryType::kEndOfQuery:
 		assert(false);
 	}
@@ -946,10 +953,10 @@ CurrentObjectFits() const {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::Impl::
 CurrentNodeFits() const -> FitType {
-	const BoundingBox<Number>& node_bounds = traversal_.GetNodeBoundingBox();
-	BoundingBox<Number> extended_bounds = node_bounds;
+	const bounding_box<Number>& node_bounds = traversal_.GetNodeBoundingBox();
+	bounding_box<Number> extended_bounds = node_bounds;
 	Number half_width =
 		(Number)((typename detail::MakeDistance<Number>::Type)node_bounds.width / 2);
 	Number half_height =
@@ -960,23 +967,23 @@ CurrentNodeFits() const -> FitType {
 	extended_bounds.top = (Number)(extended_bounds.top - half_height);
 	switch (query_type_) {
 	case QueryType::kIntersects:
-		if (!query_region_.Intersects(extended_bounds)) {
+		if (!query_region_.intersects(extended_bounds)) {
 			return FitType::kNoFit;
 		}
-		else if (query_region_.Contains(node_bounds)) {
+		else if (query_region_.contains(node_bounds)) {
 			return FitType::kFreeRide;
 		}
 		return FitType::kPartialFit;
 	case QueryType::kInside:
-		if (!query_region_.Intersects(node_bounds)) {
+		if (!query_region_.intersects(node_bounds)) {
 			return FitType::kNoFit;
 		}
-		else if (query_region_.Contains(extended_bounds)) {
+		else if (query_region_.contains(extended_bounds)) {
 			return FitType::kFreeRide;
 		}
 		return FitType::kPartialFit;
 	case QueryType::kContains:
-		if (!extended_bounds.Contains(query_region_)) {
+		if (!extended_bounds.contains(query_region_)) {
 			return FitType::kNoFit;
 		}
 		return FitType::kPartialFit;
@@ -989,8 +996,8 @@ CurrentNodeFits() const -> FitType {
 
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-Impl() :
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+impl() :
 	root_(nullptr), bounding_box_(0, 0, 0, 0),
 	object_pointers_(64, std::hash<Object*>(), std::equal_to<Object*>(),
 		detail::BlocksAllocatorAdaptor<std::pair<const Object*, Object**>>(allocator_)),
@@ -1001,14 +1008,14 @@ Impl() :
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-~Impl() {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+~impl() {
 	DeleteTree();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 Insert(Object* object) {
 	bool was_removed = Remove(object);
 	Object** place = InsertIntoTree(object);
@@ -1020,14 +1027,14 @@ Insert(Object* object) {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 Update(Object* object) {
 	return !Insert(object);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 Remove(Object* object) {
 	auto it = object_pointers_.find(object);
 	if (it != object_pointers_.end()) {
@@ -1043,66 +1050,66 @@ Remove(Object* object) {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 Contains(Object* object) const {
 	return object_pointers_.find(object) != object_pointers_.end();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-QueryIntersectsRegion(const BoundingBox<Number>& region) -> Query {
-	typename Query::Impl* query_impl = GetAvailableQueryFromPool();
-	query_impl->Acquire(this, &region, Query::Impl::QueryType::kIntersects);
-	return Query(query_impl);
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+QueryIntersectsRegion(const bounding_box<Number>& region) -> query {
+	typename query::Impl* query_impl = GetAvailableQueryFromPool();
+	query_impl->Acquire(this, &region, query::Impl::QueryType::kIntersects);
+	return query(query_impl);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-QueryInsideRegion(const BoundingBox<Number>& region) -> Query {
-	typename Query::Impl* query_impl = GetAvailableQueryFromPool();
-	query_impl->Acquire(this, &region, Query::Impl::QueryType::kInside);
-	return Query(query_impl);
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+QueryInsideRegion(const bounding_box<Number>& region) -> query {
+	typename query::Impl* query_impl = GetAvailableQueryFromPool();
+	query_impl->Acquire(this, &region, query::Impl::QueryType::kInside);
+	return query(query_impl);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-QueryContainsRegion(const BoundingBox<Number>& region) -> Query {
-	typename Query::Impl* query_impl = GetAvailableQueryFromPool();
-	query_impl->Acquire(this, &region, Query::Impl::QueryType::kContains);
-	return Query(query_impl);
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+QueryContainsRegion(const bounding_box<Number>& region) -> query {
+	typename query::Impl* query_impl = GetAvailableQueryFromPool();
+	query_impl->Acquire(this, &region, query::Impl::QueryType::kContains);
+	return query(query_impl);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-const BoundingBox<NumberT>&
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+const bounding_box<NumberT>&
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 GetBoundingBox() const {
 	return bounding_box_;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 ForceCleanup() {
-	Query query = QueryIntersectsRegion(bounding_box_);
-	while (!query.EndOfQuery()) {
-		query.Next();
+	query query = QueryIntersectsRegion(bounding_box_);
+	while (!query.end_of_query()) {
+    query.next();
 	}
 	allocator_.ReleaseFreeBlocks();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 int
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 GetSize() const {
 	return number_of_objects_;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 Clear() {
 	DeleteTree();
 }
@@ -1111,7 +1118,7 @@ Clear() {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 RecalculateMaximalDepth() {
 	do {
 		if (maximal_depth_ < kInternalMaxDepth &&
@@ -1130,7 +1137,7 @@ RecalculateMaximalDepth() {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 DeleteTree() {
 	object_pointers_.clear();
 	detail::FullTreeTraversal<Number, Object>& trav = internal_traversal_;
@@ -1184,16 +1191,16 @@ DeleteTree() {
 		}
 	}
 
-	bounding_box_ = BoundingBox<Number>(0, 0, 0, 0);
+	bounding_box_ = bounding_box<Number>(0, 0, 0, 0);
 	number_of_objects_ = 0;
 	maximal_depth_ = kInternalMinDepth;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 ObjectT**
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
 InsertIntoTree(Object* object) {
-	BoundingBox<Number> object_bounds(0,0,0,0);
+	bounding_box<Number> object_bounds(0, 0, 0, 0);
 	BoundingBoxExtractor::ExtractBoundingBox(object, &object_bounds);
 	assert(object_bounds.width >= 0);
 	assert(object_bounds.height >= 0);
@@ -1215,7 +1222,7 @@ InsertIntoTree(Object* object) {
 		assert(bounding_box_.width == bounding_box_.height);
 
 		int depth_increase = 0;
-		while (!bounding_box_.Contains(object_center_x, object_center_y) ||
+		while (!bounding_box_.contains(object_center_x, object_center_y) ||
 				maximal_object_extent > bounding_box_.width) {
 			Number previous_size = bounding_box_.width;
 			bounding_box_.width = (Number)(bounding_box_.width * 2);
@@ -1261,8 +1268,8 @@ InsertIntoTree(Object* object) {
 		detail::ForwardTreeTraversal<Number, Object> trav;
 		trav.StartAt(root_, bounding_box_);
 		do {
-			const BoundingBox<Number>& node_bounds = trav.GetNodeBoundingBox();
-			assert(node_bounds.Contains(object_center_x, object_center_y));
+			const bounding_box<Number>& node_bounds = trav.GetNodeBoundingBox();
+			assert(node_bounds.contains(object_center_x, object_center_y));
 			Number maximal_bb_extent =
 					node_bounds.width >= node_bounds.height ?
 						node_bounds.width : node_bounds.height;
@@ -1318,7 +1325,7 @@ InsertIntoTree(Object* object) {
 		} while (true);
 
 #ifndef NDEBUG
-		BoundingBox<Number> effective_bounds = trav.GetNodeBoundingBox();
+		bounding_box<Number> effective_bounds = trav.GetNodeBoundingBox();
 		Number half_width =
 			(Number)((typename detail::MakeDistance<Number>::Type)effective_bounds.width / 2);
 		Number half_height =
@@ -1327,7 +1334,7 @@ InsertIntoTree(Object* object) {
 		effective_bounds.height = (Number)(effective_bounds.height * 2);
 		effective_bounds.left = (Number)(effective_bounds.left - half_width);
 		effective_bounds.top = (Number)(effective_bounds.top - half_height);
-		assert(effective_bounds.Contains(object_bounds));
+		assert(effective_bounds.contains(object_bounds));
 #endif
 
 		typename detail::TreeNode<Object>::ObjectContainer& objects =
@@ -1361,8 +1368,8 @@ InsertIntoTree(Object* object) {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Impl::
-GetAvailableQueryFromPool() -> typename Query::Impl* {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::impl::
+GetAvailableQueryFromPool() -> typename query::Impl* {
 	for (auto it = query_pool_.begin(); it != query_pool_.end(); it++) {
 		if (it->IsAvailable()) {
 			return &*it;
@@ -1377,100 +1384,100 @@ GetAvailableQueryFromPool() -> typename Query::Impl* {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Insert(Object* object) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+insert(Object* object) {
 	return impl_.Insert(object);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Update(Object* object) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+update(Object* object) {
 	return impl_.Update(object);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Remove(Object* object) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+remove(Object* object) {
 	return impl_.Remove(object);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Contains(Object* object) const {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+contains(Object* object) const {
 	return impl_.Contains(object);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-QueryIntersectsRegion(const BoundingBox<Number>& region) -> Query {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+query_intersects_region(const bounding_box<Number>& region) -> query {
 	return impl_.QueryIntersectsRegion(region);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-QueryInsideRegion(const BoundingBox<Number>& region) -> Query {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+query_inside_region(const bounding_box<Number>& region) -> query {
 	return impl_.QueryInsideRegion(region);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-QueryContainsRegion(const BoundingBox<Number>& region) -> Query {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+query_contains_region(const bounding_box<Number>& region) -> query {
 	return impl_.QueryContainsRegion(region);
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-const BoundingBox<NumberT>&
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-GetLooseBoundingBox() const {
+const bounding_box<NumberT>&
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+get_loose_bounding_box() const {
 	return impl_.GetBoundingBox();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-ForceCleanup() {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+force_cleanup() {
 	impl_.ForceCleanup();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 int
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-GetSize() const {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+get_size() const {
 	return impl_.GetSize();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-IsEmpty() const {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+is_empty() const {
 	return impl_.GetSize() == 0;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::
-Clear() {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::
+clear() {
 	impl_.Clear();
 }
 
 
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-Query(Impl* pimpl) : pimpl_(pimpl) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+query(Impl* pimpl) : pimpl_(pimpl) {
 	assert(pimpl_ != nullptr);
 	assert(!pimpl_->IsAvailable());
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-~Query() {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+~query() {
 	if (pimpl_ != nullptr) {
 		pimpl_->Release();
 		assert(pimpl_->IsAvailable());
@@ -1479,16 +1486,16 @@ template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-Query(Query&& other) : pimpl_(other.pimpl_) {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+query(query&& other) noexcept : pimpl_(other.pimpl_) {
 	other.pimpl_ = nullptr;
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 auto
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-operator=(Query&& other) -> Query& {
-	this->~Query();
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+operator=(query&& other) -> query& {
+	this->~query();
 	pimpl_ = other.pimpl_;
 	other.pimpl_ = nullptr;
 	return *this;
@@ -1496,23 +1503,23 @@ operator=(Query&& other) -> Query& {
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 bool
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-EndOfQuery() const {
-	return pimpl_->EndOfQuery();
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+end_of_query() const {
+	return pimpl_->end_of_query();
 }
 
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 ObjectT*
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-GetCurrent() const {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+get_current() const {
 	return pimpl_->GetCurrent();
 }
 
 template <typename NumberT, typename ObjectT, typename BoundingBoxExtractorT>
 void
-	LooseQuadtree<NumberT, ObjectT, BoundingBoxExtractorT>::Query::
-Next() {
+	quad_tree<NumberT, ObjectT, BoundingBoxExtractorT>::query::
+next() {
 	pimpl_->Next();
 }
 
