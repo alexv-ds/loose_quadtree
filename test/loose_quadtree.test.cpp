@@ -13,8 +13,8 @@
 template<class NumberT>
 class TrivialBBExtractor {
 public:
-  static void ExtractBoundingBox(const loose_quadtree::BoundingBox<NumberT>* object,
-                                 loose_quadtree::BoundingBox<NumberT>* bbox) {
+  static void ExtractBoundingBox(const loose_quadtree::bounding_box<NumberT>* object,
+                                 loose_quadtree::bounding_box<NumberT>* bbox) {
     bbox->left = object->left;
     bbox->top = object->top;
     bbox->width = object->width;
@@ -24,60 +24,60 @@ public:
 
 
 TEMPLATE_TEST_CASE("TestBoundingBox", "", TYPES_FOR_TESTING) {
-  loose_quadtree::BoundingBox<TestType> big(100, 100, 200, 50);
-  loose_quadtree::BoundingBox<TestType> small_inside(200, 125, 5, 5);
-  loose_quadtree::BoundingBox<TestType> edge_inside(110, 110, 190, 40);
-  loose_quadtree::BoundingBox<TestType> edge_outside(300, 150, 20, 5);
-  loose_quadtree::BoundingBox<TestType> intersecting1(290, 90, 29, 25);
-  loose_quadtree::BoundingBox<TestType> intersecting2(290, 110, 29, 25);
-  loose_quadtree::BoundingBox<TestType> outside(290, 210, 29, 25);
+  loose_quadtree::bounding_box<TestType> big(100, 100, 200, 50);
+  loose_quadtree::bounding_box<TestType> small_inside(200, 125, 5, 5);
+  loose_quadtree::bounding_box<TestType> edge_inside(110, 110, 190, 40);
+  loose_quadtree::bounding_box<TestType> edge_outside(300, 150, 20, 5);
+  loose_quadtree::bounding_box<TestType> intersecting1(290, 90, 29, 25);
+  loose_quadtree::bounding_box<TestType> intersecting2(290, 110, 29, 25);
+  loose_quadtree::bounding_box<TestType> outside(290, 210, 29, 25);
 
-  REQUIRE(big.Contains(100, 100));
-  REQUIRE_FALSE(big.Contains(300, 150));
-  REQUIRE(big.Contains(big));
-  REQUIRE(big.Contains(small_inside));
-  REQUIRE_FALSE(small_inside.Contains(big));
-  REQUIRE(big.Contains(edge_inside));
-  REQUIRE_FALSE(edge_inside.Contains(big));
-  REQUIRE_FALSE(big.Contains(edge_outside));
-  REQUIRE_FALSE(edge_outside.Contains(big));
-  REQUIRE_FALSE(big.Contains(intersecting1));
-  REQUIRE_FALSE(intersecting1.Contains(big));
-  REQUIRE_FALSE(big.Contains(intersecting2));
-  REQUIRE_FALSE(intersecting1.Contains(big));
-  REQUIRE_FALSE(intersecting1.Contains(intersecting2));
-  REQUIRE_FALSE(big.Contains(outside));
-  REQUIRE_FALSE(outside.Contains(big));
+  REQUIRE(big.contains(100, 100));
+  REQUIRE_FALSE(big.contains(300, 150));
+  REQUIRE(big.contains(big));
+  REQUIRE(big.contains(small_inside));
+  REQUIRE_FALSE(small_inside.contains(big));
+  REQUIRE(big.contains(edge_inside));
+  REQUIRE_FALSE(edge_inside.contains(big));
+  REQUIRE_FALSE(big.contains(edge_outside));
+  REQUIRE_FALSE(edge_outside.contains(big));
+  REQUIRE_FALSE(big.contains(intersecting1));
+  REQUIRE_FALSE(intersecting1.contains(big));
+  REQUIRE_FALSE(big.contains(intersecting2));
+  REQUIRE_FALSE(intersecting1.contains(big));
+  REQUIRE_FALSE(intersecting1.contains(intersecting2));
+  REQUIRE_FALSE(big.contains(outside));
+  REQUIRE_FALSE(outside.contains(big));
 
-  REQUIRE(big.Intersects(big));
-  REQUIRE(big.Intersects(small_inside));
-  REQUIRE(small_inside.Intersects(big));
-  REQUIRE(big.Intersects(edge_inside));
-  REQUIRE(edge_inside.Intersects(big));
-  REQUIRE_FALSE(big.Intersects(edge_outside));
-  REQUIRE_FALSE(edge_outside.Intersects(big));
-  REQUIRE(big.Intersects(intersecting1));
-  REQUIRE(intersecting1.Intersects(big));
-  REQUIRE(big.Intersects(intersecting2));
-  REQUIRE(intersecting2.Intersects(big));
-  REQUIRE(intersecting1.Intersects(intersecting2));
-  REQUIRE_FALSE(big.Intersects(outside));
-  REQUIRE_FALSE(outside.Intersects(big));
+  REQUIRE(big.intersects(big));
+  REQUIRE(big.intersects(small_inside));
+  REQUIRE(small_inside.intersects(big));
+  REQUIRE(big.intersects(edge_inside));
+  REQUIRE(edge_inside.intersects(big));
+  REQUIRE_FALSE(big.intersects(edge_outside));
+  REQUIRE_FALSE(edge_outside.intersects(big));
+  REQUIRE(big.intersects(intersecting1));
+  REQUIRE(intersecting1.intersects(big));
+  REQUIRE(big.intersects(intersecting2));
+  REQUIRE(intersecting2.intersects(big));
+  REQUIRE(intersecting1.intersects(intersecting2));
+  REQUIRE_FALSE(big.intersects(outside));
+  REQUIRE_FALSE(outside.intersects(big));
 }
 
 TEMPLATE_TEST_CASE("TestForwardTreeTraversal", "", TYPES_FOR_TESTING) {
   loose_quadtree::detail::BlocksAllocator allocator;
-  loose_quadtree::detail::ForwardTreeTraversal<TestType, loose_quadtree::BoundingBox<TestType>> fortt;
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> root(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tl(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tr(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> br(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> bl(allocator);
+  loose_quadtree::detail::ForwardTreeTraversal<TestType, loose_quadtree::bounding_box<TestType>> fortt;
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> root(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tl(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tr(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> br(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> bl(allocator);
   root.top_left = &tl;
   tl.top_right = &tr;
   tr.bottom_right = &br;
   root.bottom_left = &bl;
-  fortt.StartAt(&root, loose_quadtree::BoundingBox<TestType>(0, 0, 64, 64));
+  fortt.StartAt(&root, loose_quadtree::bounding_box<TestType>(0, 0, 64, 64));
   REQUIRE(fortt.GetDepth() == 0);
   REQUIRE(fortt.GetNode() == &root);
   REQUIRE(fortt.GetNodeBoundingBox().left == 0);
@@ -105,7 +105,7 @@ TEMPLATE_TEST_CASE("TestForwardTreeTraversal", "", TYPES_FOR_TESTING) {
   REQUIRE(fortt.GetNodeBoundingBox().top == 8);
   REQUIRE(fortt.GetNodeBoundingBox().width == 8);
   REQUIRE(fortt.GetNodeBoundingBox().height == 8);
-  fortt.StartAt(&root, loose_quadtree::BoundingBox<TestType>(0, 0, 64, 64));
+  fortt.StartAt(&root, loose_quadtree::bounding_box<TestType>(0, 0, 64, 64));
   REQUIRE(fortt.GetDepth() == 0);
   REQUIRE(fortt.GetNode() == &root);
   REQUIRE(fortt.GetNodeBoundingBox().left == 0);
@@ -123,17 +123,17 @@ TEMPLATE_TEST_CASE("TestForwardTreeTraversal", "", TYPES_FOR_TESTING) {
 
 TEMPLATE_TEST_CASE("TestFullTreeTraversal", "", TYPES_FOR_TESTING) {
   loose_quadtree::detail::BlocksAllocator allocator;
-  loose_quadtree::detail::FullTreeTraversal<TestType, loose_quadtree::BoundingBox<TestType>> fultt;
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> root(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tl(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tr(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> br(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> bl(allocator);
+  loose_quadtree::detail::FullTreeTraversal<TestType, loose_quadtree::bounding_box<TestType>> fultt;
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> root(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tl(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tr(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> br(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> bl(allocator);
   root.top_left = &tl;
   tl.top_right = &tr;
   tr.bottom_right = &br;
   br.bottom_left = &bl;
-  fultt.StartAt(&root, loose_quadtree::BoundingBox<TestType>(0, 0, 64, 64));
+  fultt.StartAt(&root, loose_quadtree::bounding_box<TestType>(0, 0, 64, 64));
   REQUIRE(fultt.GetDepth() == 0);
   REQUIRE(fultt.GetNode() == &root);
   REQUIRE(fultt.GetNodeCurrentChild() == loose_quadtree::detail::ChildPosition::kNone);
@@ -173,15 +173,15 @@ TEMPLATE_TEST_CASE("TestFullTreeTraversal", "", TYPES_FOR_TESTING) {
 
 TEMPLATE_TEST_CASE("TestBoundingBoxDiscrepancy", "", TYPES_FOR_TESTING) {
   loose_quadtree::detail::BlocksAllocator allocator;
-  loose_quadtree::detail::FullTreeTraversal<TestType, loose_quadtree::BoundingBox<TestType>> ftt;
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> root(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tl(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> tr(allocator);
-  loose_quadtree::detail::TreeNode<loose_quadtree::BoundingBox<TestType>> br(allocator);
+  loose_quadtree::detail::FullTreeTraversal<TestType, loose_quadtree::bounding_box<TestType>> ftt;
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> root(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tl(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> tr(allocator);
+  loose_quadtree::detail::TreeNode<loose_quadtree::bounding_box<TestType>> br(allocator);
   root.top_left = &tl;
   root.top_right = &tr;
   root.bottom_right = &br;
-  ftt.StartAt(&root, loose_quadtree::BoundingBox<TestType>(10, 10, 17, 19));
+  ftt.StartAt(&root, loose_quadtree::bounding_box<TestType>(10, 10, 17, 19));
   TestType orig_width = ftt.GetNodeBoundingBox().width;
   TestType orig_height = ftt.GetNodeBoundingBox().height;
   ftt.GoTopLeft();
@@ -206,312 +206,312 @@ TEMPLATE_TEST_CASE("TestBoundingBoxDiscrepancy", "", TYPES_FOR_TESTING) {
 TEMPLATE_TEST_CASE("TestInsertRemove", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({1000, 1300, 50, 30});
   objects.push_back({1060, 1300, 50, 30});
   objects.push_back({1060, 1300, 5, 3});
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  REQUIRE(lqt.GetSize() == 0);
-  REQUIRE(lqt.IsEmpty());
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.GetSize() == 0);
-  lqt.Insert(&objects[0]);
-  REQUIRE(lqt.GetSize() == 1);
-  REQUIRE_FALSE(lqt.IsEmpty());
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE_FALSE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  lqt.Remove(&objects[0]);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.GetSize() == 0);
-  REQUIRE(lqt.IsEmpty());
+  REQUIRE(lqt.get_size() == 0);
+  REQUIRE(lqt.is_empty());
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.get_size() == 0);
+  lqt.insert(&objects[0]);
+  REQUIRE(lqt.get_size() == 1);
+  REQUIRE_FALSE(lqt.is_empty());
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE_FALSE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  lqt.remove(&objects[0]);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.get_size() == 0);
+  REQUIRE(lqt.is_empty());
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Insert(&objects[1]);
-  REQUIRE(lqt.GetSize() == 1);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  lqt.Insert(&objects[0]);
-  lqt.Insert(&objects[0]);
-  lqt.Insert(&objects[0]);
-  REQUIRE(lqt.GetSize() == 2);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE_FALSE(lqt.Contains(&objects[2]));
+  lqt.insert(&objects[1]);
+  REQUIRE(lqt.get_size() == 1);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  lqt.insert(&objects[0]);
+  lqt.insert(&objects[0]);
+  lqt.insert(&objects[0]);
+  REQUIRE(lqt.get_size() == 2);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE_FALSE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Insert(&objects[2]);
-  REQUIRE(lqt.GetSize() == 3);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
+  lqt.insert(&objects[2]);
+  REQUIRE(lqt.get_size() == 3);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[2]));
-  REQUIRE_FALSE(objects[2].Contains(lqt.GetLooseBoundingBox()));
-  lqt.Remove(&objects[1]);
-  lqt.Remove(&objects[1]);
-  lqt.Remove(&objects[1]);
-  REQUIRE(lqt.GetSize() == 2);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE_FALSE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[2]));
+  REQUIRE_FALSE(objects[2].contains(lqt.get_loose_bounding_box()));
+  lqt.remove(&objects[1]);
+  lqt.remove(&objects[1]);
+  lqt.remove(&objects[1]);
+  REQUIRE(lqt.get_size() == 2);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE_FALSE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[0]);
-  REQUIRE(lqt.GetSize() == 1);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE_FALSE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
+  lqt.remove(&objects[0]);
+  REQUIRE(lqt.get_size() == 1);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE_FALSE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[0]);
-  REQUIRE(lqt.GetSize() == 1);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE_FALSE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
+  lqt.remove(&objects[0]);
+  REQUIRE(lqt.get_size() == 1);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE_FALSE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[2]);
-  REQUIRE(lqt.GetSize() == 0);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE_FALSE(lqt.Contains(&objects[1]));
-  REQUIRE_FALSE(lqt.Contains(&objects[2]));
+  lqt.remove(&objects[2]);
+  REQUIRE(lqt.get_size() == 0);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE_FALSE(lqt.contains(&objects[1]));
+  REQUIRE_FALSE(lqt.contains(&objects[2]));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 }
 
 TEMPLATE_TEST_CASE("TestUpdate", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({1000, 1000, 50, 30});
   objects.push_back({1060, 1000, 50, 30});
   objects.push_back({1060, 1000, 5, 3});
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Insert(&objects[0]);
-  lqt.Insert(&objects[1]);
-  lqt.Insert(&objects[2]);
+  lqt.insert(&objects[0]);
+  lqt.insert(&objects[1]);
+  lqt.insert(&objects[2]);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  REQUIRE(lqt.GetSize() == 3);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[2]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[2].Contains(lqt.GetLooseBoundingBox()));
+  REQUIRE(lqt.get_size() == 3);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[2]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[2].contains(lqt.get_loose_bounding_box()));
   objects[2].width = 50;
   objects[2].height = 30;
-  lqt.Update(&objects[2]);
+  lqt.update(&objects[2]);
   objects[0].left = 1060;
-  lqt.Update(&objects[0]);
-  REQUIRE(lqt.GetSize() == 3);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[2]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[2].Contains(lqt.GetLooseBoundingBox()));
+  lqt.update(&objects[0]);
+  REQUIRE(lqt.get_size() == 3);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[2]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[2].contains(lqt.get_loose_bounding_box()));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  REQUIRE(lqt.GetSize() == 3);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[2]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[2].Contains(lqt.GetLooseBoundingBox()));
-  lqt.Remove(&objects[0]);
-  REQUIRE(lqt.GetSize() == 2);
+  REQUIRE(lqt.get_size() == 3);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[2]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[2].contains(lqt.get_loose_bounding_box()));
+  lqt.remove(&objects[0]);
+  REQUIRE(lqt.get_size() == 2);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[1]);
-  REQUIRE(lqt.GetSize() == 1);
+  lqt.remove(&objects[1]);
+  REQUIRE(lqt.get_size() == 1);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[2]);
-  REQUIRE(lqt.GetSize() == 0);
+  lqt.remove(&objects[2]);
+  REQUIRE(lqt.get_size() == 0);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 }
 
 TEMPLATE_TEST_CASE("TestMoreTrees", "", TYPES_FOR_TESTING) {
   const bool reclaim_losses = GENERATE(true, false);
 
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({1000, 1000, 50, 30});
   objects.push_back({1060, 1000, 50, 30});
   objects.push_back({1060, 1000, 5, 3});
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Insert(&objects[0]);
-  lqt.Insert(&objects[1]);
-  REQUIRE(lqt.GetSize() == 2);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
+  lqt.insert(&objects[0]);
+  lqt.insert(&objects[1]);
+  REQUIRE(lqt.get_size() == 2);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
   {
-    loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt2;
+    loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt2;
 
     if (reclaim_losses) {
-      lqt2.ForceCleanup();
+      lqt2.force_cleanup();
     }
 
-    REQUIRE(lqt2.GetSize() == 0);
-    lqt2.Insert(&objects[1]);
-    lqt2.Insert(&objects[2]);
-    lqt.Insert(&objects[2]);
+    REQUIRE(lqt2.get_size() == 0);
+    lqt2.insert(&objects[1]);
+    lqt2.insert(&objects[2]);
+    lqt.insert(&objects[2]);
 
     if (reclaim_losses) {
-      lqt.ForceCleanup();
+      lqt.force_cleanup();
     }
 
-    REQUIRE(lqt2.GetSize() == 2);
-    REQUIRE_FALSE(lqt2.Contains(&objects[0]));
-    REQUIRE(lqt2.Contains(&objects[1]));
-    REQUIRE(lqt2.Contains(&objects[2]));
+    REQUIRE(lqt2.get_size() == 2);
+    REQUIRE_FALSE(lqt2.contains(&objects[0]));
+    REQUIRE(lqt2.contains(&objects[1]));
+    REQUIRE(lqt2.contains(&objects[2]));
 
     if (reclaim_losses) {
-      lqt2.ForceCleanup();
+      lqt2.force_cleanup();
     }
 
-    lqt2.Remove(&objects[1]);
-    lqt2.Remove(&objects[2]);
-    REQUIRE(lqt2.GetSize() == 0);
+    lqt2.remove(&objects[1]);
+    lqt2.remove(&objects[2]);
+    REQUIRE(lqt2.get_size() == 0);
 
     if (reclaim_losses) {
-      lqt2.ForceCleanup();
-    }
-  }
-  {
-    loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt2;
-    lqt2.Insert(&objects[1]);
-
-    if (reclaim_losses) {
-      lqt2.ForceCleanup();
+      lqt2.force_cleanup();
     }
   }
   {
-    loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt2;
-    lqt2.Insert(&objects[1]);
-    lqt2.Insert(&objects[2]);
-    lqt2.Insert(&objects[0]);
-    REQUIRE(lqt2.Contains(&objects[1]));
-    lqt2.Clear();
-    REQUIRE(lqt2.GetSize() == 0);
-    REQUIRE_FALSE(lqt2.Contains(&objects[1]));
+    loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt2;
+    lqt2.insert(&objects[1]);
 
     if (reclaim_losses) {
-      lqt2.ForceCleanup();
+      lqt2.force_cleanup();
+    }
+  }
+  {
+    loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt2;
+    lqt2.insert(&objects[1]);
+    lqt2.insert(&objects[2]);
+    lqt2.insert(&objects[0]);
+    REQUIRE(lqt2.contains(&objects[1]));
+    lqt2.clear();
+    REQUIRE(lqt2.get_size() == 0);
+    REQUIRE_FALSE(lqt2.contains(&objects[1]));
+
+    if (reclaim_losses) {
+      lqt2.force_cleanup();
     }
 
-    REQUIRE(lqt2.GetSize() == 0);
-    REQUIRE_FALSE(lqt2.Contains(&objects[1]));
-    lqt2.Insert(&objects[1]);
-    REQUIRE(lqt2.GetSize() == 1);
-    REQUIRE(lqt2.Contains(&objects[1]));
+    REQUIRE(lqt2.get_size() == 0);
+    REQUIRE_FALSE(lqt2.contains(&objects[1]));
+    lqt2.insert(&objects[1]);
+    REQUIRE(lqt2.get_size() == 1);
+    REQUIRE(lqt2.contains(&objects[1]));
   }
-  REQUIRE(lqt.GetSize() == 3);
-  REQUIRE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.Contains(&objects[2]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[0]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[1]));
-  REQUIRE(lqt.GetLooseBoundingBox().Intersects(objects[2]));
-  REQUIRE_FALSE(objects[0].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[1].Contains(lqt.GetLooseBoundingBox()));
-  REQUIRE_FALSE(objects[2].Contains(lqt.GetLooseBoundingBox()));
-  lqt.Remove(&objects[0]);
-  lqt.Remove(&objects[2]);
-  REQUIRE_FALSE(lqt.Contains(&objects[0]));
-  REQUIRE(lqt.Contains(&objects[1]));
-  REQUIRE(lqt.GetSize() == 1);
+  REQUIRE(lqt.get_size() == 3);
+  REQUIRE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.contains(&objects[2]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[0]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[1]));
+  REQUIRE(lqt.get_loose_bounding_box().intersects(objects[2]));
+  REQUIRE_FALSE(objects[0].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[1].contains(lqt.get_loose_bounding_box()));
+  REQUIRE_FALSE(objects[2].contains(lqt.get_loose_bounding_box()));
+  lqt.remove(&objects[0]);
+  lqt.remove(&objects[2]);
+  REQUIRE_FALSE(lqt.contains(&objects[0]));
+  REQUIRE(lqt.contains(&objects[1]));
+  REQUIRE(lqt.get_size() == 1);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 
-  lqt.Remove(&objects[1]);
-  REQUIRE(lqt.GetSize() == 0);
+  lqt.remove(&objects[1]);
+  REQUIRE(lqt.get_size() == 0);
 
   if (reclaim_losses) {
-    lqt.ForceCleanup();
+    lqt.force_cleanup();
   }
 }
 
 TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({10000, 10000, 8000, 8000});//0
   objects.push_back({10000, 10000, 7000, 6000});//1
   objects.push_back({10000, 10000, 7, 6});//2
@@ -519,47 +519,47 @@ TEMPLATE_TEST_CASE("TestQueryIntersects", "", TYPES_FOR_TESTING) {
   objects.push_back({15100, 15100, 200, 200});//4
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj: objects) {
-    lqt.Insert(&obj);
+    lqt.insert(&obj);
   }
 
-  auto query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
-  REQUIRE(query.EndOfQuery());
+  auto query = lqt.query_intersects_region(loose_quadtree::bounding_box<TestType>(33, 33, 1, 1));
+  REQUIRE(query.end_of_query());
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
+  query = lqt.query_intersects_region(loose_quadtree::bounding_box<TestType>(9000, 9000, 9000, 9000));
   int count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     (void) obj;
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 7);
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
+  query = lqt.query_intersects_region(loose_quadtree::bounding_box<TestType>(10003, 10003, 3, 7));
   count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[0] && obj != &objects[1] && obj != &objects[2]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 3);
 
-  query = lqt.QueryIntersectsRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 200, 200));
+  query = lqt.query_intersects_region(loose_quadtree::bounding_box<TestType>(14900, 14900, 200, 200));
   count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[0] && obj != &objects[1] && obj != &objects[3] && obj != &objects[5]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 4);
 }
 
 TEMPLATE_TEST_CASE("TestQueryInside", "", TYPES_FOR_TESTING) {
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({10000, 10000, 8000, 8000});//0
   objects.push_back({10000, 10000, 7000, 6000});//1
   objects.push_back({10000, 10000, 7, 6});//2
@@ -567,40 +567,40 @@ TEMPLATE_TEST_CASE("TestQueryInside", "", TYPES_FOR_TESTING) {
   objects.push_back({15100, 15100, 200, 200});//4
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj: objects) {
-    lqt.Insert(&obj);
+    lqt.insert(&obj);
   }
 
-  auto query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
-  REQUIRE(query.EndOfQuery());
+  auto query = lqt.query_inside_region(loose_quadtree::bounding_box<TestType>(33, 33, 1, 1));
+  REQUIRE(query.end_of_query());
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
+  query = lqt.query_inside_region(loose_quadtree::bounding_box<TestType>(9000, 9000, 9000, 9000));
   int count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     (void) obj;
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 7);
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
-  REQUIRE(query.EndOfQuery());
+  query = lqt.query_inside_region(loose_quadtree::bounding_box<TestType>(10003, 10003, 3, 7));
+  REQUIRE(query.end_of_query());
 
-  query = lqt.QueryInsideRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 300, 300));
+  query = lqt.query_inside_region(loose_quadtree::bounding_box<TestType>(14900, 14900, 300, 300));
   count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[5] && obj != &objects[6]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 2);
 }
 
 TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bounding_box<TestType>> objects;
   objects.push_back({10000, 10000, 8000, 8000});//0
   objects.push_back({10000, 10000, 7000, 6000});//1
   objects.push_back({10000, 10000, 7, 6});//2
@@ -608,44 +608,44 @@ TEMPLATE_TEST_CASE("TestQueryContains", "", TYPES_FOR_TESTING) {
   objects.push_back({15100, 15100, 200, 200});//4
   objects.push_back({15000, 15000, 200, 200});//5
   objects.push_back({15100, 15100, 2, 2});//6
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bounding_box<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (auto& obj: objects) {
-    lqt.Insert(&obj);
+    lqt.insert(&obj);
   }
 
-  auto query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(33, 33, 1, 1));
-  REQUIRE(query.EndOfQuery());
+  auto query = lqt.query_contains_region(loose_quadtree::bounding_box<TestType>(33, 33, 1, 1));
+  REQUIRE(query.end_of_query());
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(9000, 9000, 9000, 9000));
-  REQUIRE(query.EndOfQuery());
+  query = lqt.query_contains_region(loose_quadtree::bounding_box<TestType>(9000, 9000, 9000, 9000));
+  REQUIRE(query.end_of_query());
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(10003, 10003, 3, 7));
+  query = lqt.query_contains_region(loose_quadtree::bounding_box<TestType>(10003, 10003, 3, 7));
   int count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[0] && obj != &objects[1]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 2);
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(14900, 14900, 200, 200));
+  query = lqt.query_contains_region(loose_quadtree::bounding_box<TestType>(14900, 14900, 200, 200));
   count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[0] && obj != &objects[1]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 2);
 
-  query = lqt.QueryContainsRegion(loose_quadtree::BoundingBox<TestType>(15000, 15000, 2, 2));
+  query = lqt.query_contains_region(loose_quadtree::bounding_box<TestType>(15000, 15000, 2, 2));
   count = 0;
-  while (!query.EndOfQuery()) {
-    loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+  while (!query.end_of_query()) {
+    loose_quadtree::bounding_box<TestType>* obj = query.get_current();
     REQUIRE_FALSE((obj != &objects[0] && obj != &objects[1] && obj != &objects[3] && obj != &objects[5]));
     count++;
-    query.Next();
+    query.next();
   }
   REQUIRE(count == 4);
 }
@@ -682,14 +682,14 @@ TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
                            std::numeric_limits<TestType>::max() / 16) :
                    0.5f);
 
-  std::vector<loose_quadtree::BoundingBox<TestType>> objects;
+  std::vector<loose_quadtree::bbox<TestType>> objects;
   objects.reserve(objects_generated);
   std::vector<bool> flags(objects_generated, false);
-  loose_quadtree::LooseQuadtree<TestType, loose_quadtree::BoundingBox<TestType>, TrivialBBExtractor<TestType>> lqt;
+  loose_quadtree::quad_tree<TestType, loose_quadtree::bbox<TestType>, TrivialBBExtractor<TestType>> lqt;
   for (std::size_t i = 0; i < objects_generated; i++) {
     objects.emplace_back((TestType)coordinate(rand), (TestType)coordinate(rand),
                          (TestType)distance(rand), (TestType)distance(rand));
-    lqt.Insert(&objects[i]);
+    lqt.insert(&objects[i]);
   }
   REQUIRE(objects.size() == objects_generated);
   REQUIRE(flags.size() == objects_generated);
@@ -697,20 +697,20 @@ TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
   for (int round = 0; round < full_rounds; round++) {
     for (int fluctobj = 0; fluctobj < object_fluctuation; fluctobj++) {
       std::size_t id = index(rand);
-      objects[id] = loose_quadtree::BoundingBox<TestType>((TestType)coordinate(rand), (TestType)coordinate(rand),
+      objects[id] = loose_quadtree::bbox<TestType>((TestType)coordinate(rand), (TestType)coordinate(rand),
                                          (TestType)distance(rand), (TestType)distance(rand));
-      lqt.Update(&objects[id]);
+      lqt.update(&objects[id]);
     }
     for (int query_round = 0; query_round < query_rounds; query_round++) {
-      loose_quadtree::BoundingBox<TestType> query_region((TestType)coordinate(rand), (TestType)coordinate(rand),
+      loose_quadtree::bbox<TestType> query_region((TestType)coordinate(rand), (TestType)coordinate(rand),
                                         (TestType)distance(rand), (TestType)distance(rand));
       for (std::size_t i = 0; i < objects_generated; i++) {
         flags[i] = false;
       }
 
-      auto query = lqt.QueryIntersectsRegion(query_region);
+      auto query = lqt.query_intersects_region(query_region);
       while (!query.EndOfQuery()) {
-        loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+        loose_quadtree::bbox<TestType>* obj = query.GetCurrent();
         REQUIRE(query_region.Intersects(*obj));
         auto id = (std::size_t)(obj - &objects[0]);
         REQUIRE((id >= 0 && id < objects_generated));
@@ -718,13 +718,13 @@ TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
         query.Next();
       }
       for (std::size_t i = 0; i < objects_generated; i++) {
-        REQUIRE(flags[i] == query_region.Intersects(objects[i]));
+        REQUIRE(flags[i] == query_region.intersects(objects[i]));
         flags[i] = false;
       }
 
-      query = lqt.QueryInsideRegion(query_region);
-      while (!query.EndOfQuery()) {
-        loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
+      query = lqt.query_inside_region(query_region);
+      while (!query.end_of_query()) {
+        loose_quadtree::bbox<TestType>* obj = query.GetCurrent();
         REQUIRE(query_region.Contains(*obj));
         std::size_t id = (std::size_t)(obj - &objects[0]);
         REQUIRE((id >= 0 && id < objects_generated));
@@ -732,25 +732,25 @@ TEMPLATE_TEST_CASE("StressTest", "", TYPES_FOR_TESTING) {
         query.Next();
       }
       for (std::size_t i = 0; i < objects_generated; i++) {
-        REQUIRE(flags[i] == query_region.Contains(objects[i]));
+        REQUIRE(flags[i] == query_region.contains(objects[i]));
         flags[i] = false;
       }
 
-      query = lqt.QueryContainsRegion(query_region);
-      while (!query.EndOfQuery()) {
-        loose_quadtree::BoundingBox<TestType>* obj = query.GetCurrent();
-        REQUIRE(obj->Contains(query_region));
+      query = lqt.query_contains_region(query_region);
+      while (!query.end_of_query()) {
+        loose_quadtree::bbox<TestType>* obj = query.get_current();
+        REQUIRE(obj->contains(query_region));
         std::size_t id = (std::size_t)(obj - &objects[0]);
         REQUIRE((id >= 0 && id < objects_generated));
         flags[id] = true;
-        query.Next();
+        query.next();
       }
       for (std::size_t i = 0; i < objects_generated; i++) {
-        REQUIRE(flags[i] == objects[i].Contains(query_region));
+        REQUIRE(flags[i] == objects[i].contains(query_region));
         //flags[i] = false;
       }
     }
   }
-  lqt.ForceCleanup();
+  lqt.force_cleanup();
 }
 //*/
